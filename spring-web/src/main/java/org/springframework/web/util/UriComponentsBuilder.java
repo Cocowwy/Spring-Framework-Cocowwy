@@ -85,7 +85,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
 	private static final String HOST_PATTERN = "(" + HOST_IPV6_PATTERN + "|" + HOST_IPV4_PATTERN + ")";
 
-	private static final String PORT_PATTERN = "(\\d*(?:\\{[^/]+?})?)";
+	private static final String PORT_PATTERN = "(\\{[^}]+}?|[^/?#]*)";
 
 	private static final String PATH_PATTERN = "([^?#]*)";
 
@@ -881,8 +881,9 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 					"with the removeOnly=true. Request headers: " + headers);
 		}
 
-		if (this.scheme != null && ((this.scheme.equals("http") && "80".equals(this.port)) ||
-				(this.scheme.equals("https") && "443".equals(this.port)))) {
+		if (this.scheme != null &&
+				(((this.scheme.equals("http") || this.scheme.equals("ws")) && "80".equals(this.port)) ||
+				((this.scheme.equals("https") || this.scheme.equals("wss")) && "443".equals(this.port)))) {
 			port(null);
 		}
 
