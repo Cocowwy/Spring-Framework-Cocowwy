@@ -113,6 +113,8 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 
 
 	/**
+	 * 关闭先前的 bean 工厂（如果有）并为上下文生命周期的下一个阶段初始化一个新的 bean 工厂
+	 *
 	 * This implementation performs an actual refresh of this context's underlying
 	 * bean factory, shutting down the previous bean factory (if any) and
 	 * initializing a fresh bean factory for the next phase of the context's lifecycle.
@@ -124,13 +126,21 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			closeBeanFactory();
 		}
 		try {
+			// DefaultListableBeanFactory
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			beanFactory.setSerializationId(getId());
 			customizeBeanFactory(beanFactory);
+			// 加载bean的定义信息
 			loadBeanDefinitions(beanFactory);
+			// (ConcurrentHashMap)beanDefinitionMap
+			//  (key)student ->
+			//  (value){GenericBeanDefinition@1763}
+			//  "Generic bean: class [bean.Student]; scope=; abstract=false; lazyInit=false;
+			//  autowireMode=0; dependencyCheck=0; autowireCandidate=true; primary=false; factoryBeanName=null;
+			//  factoryMethodName=null; initMethodName=null; destroyMethodName=null;
+			//  defined in class path resource [spring.xml]"
 			this.beanFactory = beanFactory;
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			throw new ApplicationContextException("I/O error parsing bean definition source for " + getDisplayName(), ex);
 		}
 	}
