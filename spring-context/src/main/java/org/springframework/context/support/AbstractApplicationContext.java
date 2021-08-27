@@ -89,6 +89,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
+ * 使用模板方法设计模式，需要具体的子类来实现抽象方法。
+ *
  * Abstract implementation of the {@link org.springframework.context.ApplicationContext}
  * interface. Doesn't mandate the type of storage used for configuration; simply
  * implements common context functionality. Uses the Template Method design pattern,
@@ -160,6 +162,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
 
 	/**
+	 * 指示 Spring 忽略 SpEL，即不初始化 SpEL 基础结构
+	 *
 	 * Boolean flag controlled by a {@code spring.spel.ignore} system property that instructs Spring to
 	 * ignore SpEL, i.e. to not initialize the SpEL infrastructure.
 	 * <p>The default is "false".
@@ -187,23 +191,42 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Nullable
 	private ApplicationContext parent;
 
-	/** Environment used by this context. */
+	/**
+	 * 此上下文使用的环境。
+	 * Environment used by this context.
+	 * */
 	@Nullable
 	private ConfigurableEnvironment environment;
 
 	/** BeanFactoryPostProcessors to apply on refresh. */
 	private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
 
-	/** System time in milliseconds when this context started. */
+	/**
+	 * 此上下文启动时的系统时间（以毫秒为单位）
+	 *
+	 * System time in milliseconds when this context started.
+	 * */
 	private long startupDate;
 
-	/** Flag that indicates whether this context is currently active. */
+	/**
+	 * 指示此上下文当前是否处于活动状态的标志
+	 *
+	 * Flag that indicates whether this context is currently active.
+	 * */
 	private final AtomicBoolean active = new AtomicBoolean();
 
-	/** Flag that indicates whether this context has been closed already. */
+	/**
+	 * 指示此上下文是否已经关闭的标志
+	 *
+	 * Flag that indicates whether this context has been closed already.
+	 * */
 	private final AtomicBoolean closed = new AtomicBoolean();
 
-	/** Synchronization monitor for the "refresh" and "destroy". */
+	/**
+	 * “刷新”和“销毁”的同步监视器
+	 *
+	 * Synchronization monitor for the "refresh" and "destroy".
+	 * */
 	private final Object startupShutdownMonitor = new Object();
 
 	/** Reference to the JVM shutdown hook, if registered. */
@@ -405,8 +428,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		ApplicationEvent applicationEvent;
 		if (event instanceof ApplicationEvent) {
 			applicationEvent = (ApplicationEvent) event;
-		}
-		else {
+		} else {
 			applicationEvent = new PayloadApplicationEvent<>(this, event);
 			if (eventType == null) {
 				eventType = ((PayloadApplicationEvent<?>) applicationEvent).getResolvableType();
@@ -416,8 +438,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Multicast right now if possible - or lazily once the multicaster is initialized
 		if (this.earlyApplicationEvents != null) {
 			this.earlyApplicationEvents.add(applicationEvent);
-		}
-		else {
+		} else {
 			getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
 		}
 
@@ -425,8 +446,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		if (this.parent != null) {
 			if (this.parent instanceof AbstractApplicationContext) {
 				((AbstractApplicationContext) this.parent).publishEvent(event, eventType);
-			}
-			else {
+			} else {
 				this.parent.publishEvent(event);
 			}
 		}
@@ -546,6 +566,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		synchronized (this.startupShutdownMonitor) {
 			StartupStep contextRefresh = this.applicationStartup.start("spring.context.refresh");
 
+			// 准备此上下文以进行刷新
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
@@ -584,9 +605,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 				// Last step: publish corresponding event.
 				finishRefresh();
-			}
-
-			catch (BeansException ex) {
+			} catch (BeansException ex) {
 				if (logger.isWarnEnabled()) {
 					logger.warn("Exception encountered during context initialization - " +
 							"cancelling refresh attempt: " + ex);
@@ -600,9 +619,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 				// Propagate exception to caller.
 				throw ex;
-			}
-
-			finally {
+			} finally {
 				// Reset common introspection caches in Spring's core, since we
 				// might not ever need metadata for singleton beans anymore...
 				resetCommonCaches();
@@ -612,36 +629,43 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * 准备此上下文以进行刷新、设置其启动日期和活动标志以及执行属性源的任何初始化。
+	 * 准备进行refresh的前期工作
+	 *
 	 * Prepare this context for refreshing, setting its startup date and
 	 * active flag as well as performing any initialization of property sources.
 	 */
 	protected void prepareRefresh() {
 		// Switch to active.
+
+		// 上下文的启动时间
 		this.startupDate = System.currentTimeMillis();
+		// 指示此上下文未关闭
 		this.closed.set(false);
+		// 指示此上下文活跃
 		this.active.set(true);
 
 		if (logger.isDebugEnabled()) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Refreshing " + this);
-			}
-			else {
+			} else {
 				logger.debug("Refreshing " + getDisplayName());
 			}
 		}
 
 		// Initialize any placeholder property sources in the context environment.
+		// 空方法
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:
 		// see ConfigurablePropertyResolver#setRequiredProperties
+		// 初始化环境，验证必须的属性
 		getEnvironment().validateRequiredProperties();
 
 		// Store pre-refresh ApplicationListeners...
 		if (this.earlyApplicationListeners == null) {
 			this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
-		}
-		else {
+		} else {
 			// Reset local application listeners to pre-refresh state.
 			this.applicationListeners.clear();
 			this.applicationListeners.addAll(this.earlyApplicationListeners);
@@ -782,8 +806,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			if (logger.isTraceEnabled()) {
 				logger.trace("Using MessageSource [" + this.messageSource + "]");
 			}
-		}
-		else {
+		} else {
 			// Use empty MessageSource to be able to accept getMessage calls.
 			DelegatingMessageSource dms = new DelegatingMessageSource();
 			dms.setParentMessageSource(getInternalParentMessageSource());
@@ -808,8 +831,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			if (logger.isTraceEnabled()) {
 				logger.trace("Using ApplicationEventMulticaster [" + this.applicationEventMulticaster + "]");
 			}
-		}
-		else {
+		} else {
 			this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
 			beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster);
 			if (logger.isTraceEnabled()) {
@@ -832,8 +854,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			if (logger.isTraceEnabled()) {
 				logger.trace("Using LifecycleProcessor [" + this.lifecycleProcessor + "]");
 			}
-		}
-		else {
+		} else {
 			DefaultLifecycleProcessor defaultProcessor = new DefaultLifecycleProcessor();
 			defaultProcessor.setBeanFactory(beanFactory);
 			this.lifecycleProcessor = defaultProcessor;
@@ -1024,8 +1045,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			if (this.shutdownHook != null) {
 				try {
 					Runtime.getRuntime().removeShutdownHook(this.shutdownHook);
-				}
-				catch (IllegalStateException ex) {
+				} catch (IllegalStateException ex) {
 					// ignore - VM is already shutting down
 				}
 			}
@@ -1056,8 +1076,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			try {
 				// Publish shutdown event.
 				publishEvent(new ContextClosedEvent(this));
-			}
-			catch (Throwable ex) {
+			} catch (Throwable ex) {
 				logger.warn("Exception thrown from ApplicationListener handling ContextClosedEvent", ex);
 			}
 
@@ -1065,8 +1084,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			if (this.lifecycleProcessor != null) {
 				try {
 					this.lifecycleProcessor.onClose();
-				}
-				catch (Throwable ex) {
+				} catch (Throwable ex) {
 					logger.warn("Exception thrown from LifecycleProcessor on context close", ex);
 				}
 			}
@@ -1136,8 +1154,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		if (!this.active.get()) {
 			if (this.closed.get()) {
 				throw new IllegalStateException(getDisplayName() + " has been closed already");
-			}
-			else {
+			} else {
 				throw new IllegalStateException(getDisplayName() + " has not been refreshed yet");
 			}
 		}

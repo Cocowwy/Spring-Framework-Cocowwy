@@ -76,13 +76,16 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	}
 
 	/**
+	 * 【构造器】
+	 * 创建一个新的 ClassPathXmlApplicationContext，从给定的 XML 文件加载定义并自动刷新上下文
+	 *
 	 * Create a new ClassPathXmlApplicationContext, loading the definitions
 	 * from the given XML file and automatically refreshing the context.
-	 * @param configLocation resource location
+	 * @param configLocation resource location --------->  spring.xml
 	 * @throws BeansException if context creation failed
 	 */
 	public ClassPathXmlApplicationContext(String configLocation) throws BeansException {
-		this(new String[] {configLocation}, true, null);
+		this(new String[]{configLocation}, true, null);
 	}
 
 	/**
@@ -124,13 +127,16 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	}
 
 	/**
+	 * 【构造器】
+	 * 使用给定的父级创建一个新的 ClassPathXmlApplicationContext
+	 *
 	 * Create a new ClassPathXmlApplicationContext with the given parent,
 	 * loading the definitions from the given XML files.
-	 * @param configLocations array of resource locations
-	 * @param refresh whether to automatically refresh the context,
+	 * @param configLocations array of resource locations     -------->spring.xml
+	 * @param refresh whether to automatically refresh the context,     ------->true
 	 * loading all bean definitions and creating all singletons.
 	 * Alternatively, call refresh manually after further configuring the context.
-	 * @param parent the parent context
+	 * @param parent the parent context  ---->null
 	 * @throws BeansException if context creation failed
 	 * @see #refresh()
 	 */
@@ -139,8 +145,10 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 			throws BeansException {
 
 		super(parent);
+		// configLocations--->spring.xml  设置配置文件位置
 		setConfigLocations(configLocations);
 		if (refresh) {
+			//加载所有 bean 定义并创建所有单例
 			refresh();
 		}
 	}
@@ -160,7 +168,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
 	 */
 	public ClassPathXmlApplicationContext(String path, Class<?> clazz) throws BeansException {
-		this(new String[] {path}, clazz);
+		this(new String[]{path}, clazz);
 	}
 
 	/**
