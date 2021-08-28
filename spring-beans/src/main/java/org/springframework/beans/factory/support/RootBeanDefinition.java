@@ -38,6 +38,9 @@ import org.springframework.util.Assert;
  * a specific bean in a Spring BeanFactory at runtime. It might have been created
  * from multiple original bean definitions that inherit from each other,
  * typically registered as {@link GenericBeanDefinition GenericBeanDefinitions}.
+ *
+ *
+ * 【RootBeanDefinition本质上是一个统一的bean运行时的定义视图】
  * A root bean definition is essentially the 'unified' bean definition view at runtime.
  *
  * <p>Root bean definitions may also be used for registering individual bean definitions

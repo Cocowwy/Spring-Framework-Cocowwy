@@ -905,12 +905,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
-		// 循环beanNames
+		// 触发所有非懒加载的单例 bean 的初始化
 		// Trigger initialization of all non-lazy singleton beans...
-//		【修改源码的for循环为foreach】
-//		for (String beanName : beanNames) {
+		//【修改源码的for循环为foreach】
+		// for (String beanName : beanNames) {
 		beanNames.forEach(beanName -> {
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+			// 非抽象，单例，非懒加载
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
 				if (isFactoryBean(beanName)) {
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
@@ -930,14 +931,16 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						}
 					}
 				} else {
+					// 继承自【AbstractAutowireCapableBeanFactory】
+					// 继承自【AbstractBeanFactory】的 【getBean】
 					getBean(beanName);
 				}
 			}
 		});
-//		}
+		// }
 		// Trigger post-initialization callback for all applicable beans...
-		//		【修改源码的for循环为foreach】
-//		for (String beanName : beanNames) {
+		//【修改源码的for循环为foreach】
+		// for (String beanName : beanNames) {
 		beanNames.forEach(beanName -> {
 			Object singletonInstance = getSingleton(beanName);
 			if (singletonInstance instanceof SmartInitializingSingleton) {
@@ -955,7 +958,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				smartInitialize.end();
 			}
 		});
-//		}
+		// }
 	}
 
 
