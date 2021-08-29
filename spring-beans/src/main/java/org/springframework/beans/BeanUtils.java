@@ -56,6 +56,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * JavaBean 的静态便捷方法：用于实例化 bean、检查 bean 属性类型、复制 bean 属性等
  * Static convenience methods for JavaBeans: for instantiating beans,
  * checking bean property types, copying bean properties, etc.
  *
@@ -174,6 +175,8 @@ public abstract class BeanUtils {
 	}
 
 	/**
+	 * 【实例化类】
+	 *
 	 * Convenience method to instantiate a class using the given constructor.
 	 * <p>Note that this method tries to set the constructor accessible if given a
 	 * non-accessible (that is, non-public) constructor, and supports Kotlin classes

@@ -597,7 +597,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// Initialize message source for this context.
 				initMessageSource();
 
-				// 初始化 ApplicationEventMulticaster
+				// 初始化 ApplicationEventMulticaster 多播器，方便后续发布监听事件
 				// Initialize event multicaster for this context.
 				initApplicationEventMulticaster();
 

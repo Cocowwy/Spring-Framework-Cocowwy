@@ -32,6 +32,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 在 BeanFactory 中使用的简单对象实例化策略
  * Simple object instantiation strategy for use in a BeanFactory.
  *
  * <p>Does not support Method Injection, although it provides hooks for subclasses
@@ -56,7 +57,17 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 		return currentlyInvokedFactoryMethod.get();
 	}
 
-
+	/**
+	 * 策略模式
+	 * 使用 SimpleInstantiationStrategy（简单的实例化策略）进行实例化
+	 *
+	 * @param bd the bean definition  bean的定义信息
+	 * @param beanName the name of the bean when it is created in this context.  bean的名称
+	 * The name can be {@code null} if we are autowiring a bean which doesn't
+	 * belong to the factory.
+	 * @param owner the owning BeanFactory  bean工厂
+	 * @return
+	 */
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
@@ -84,6 +95,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 					}
 				}
 			}
+			// 实例化类 Student{name='null', studentNo='null', sex='null'}
 			return BeanUtils.instantiateClass(constructorToUse);
 		}
 		else {
