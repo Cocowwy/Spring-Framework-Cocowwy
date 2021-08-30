@@ -79,8 +79,8 @@ public class Student implements BeanNameAware, EnvironmentAware,
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-		System.out.println("Student初始化之前执行的方法，实现接口BeanPostProcessor#postProcessBeforeInitialization" );
-		return bean;
+		System.out.println("Student初始化之前执行的方法，实现接口BeanPostProcessor#postProcessBeforeInitialization");
+		return new Teacher();
 	}
 
 	@Override

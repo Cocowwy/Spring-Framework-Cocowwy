@@ -544,7 +544,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
-			// 创建bean
+			// 创建bean  执行完这里之后，执行了bena的aware接口的方法
 			Object beanInstance = doCreateBean(beanName, mbdToUse, args);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Finished creating instance of bean '" + beanName + "'");
@@ -574,8 +574,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * at this point, e.g. checking {@code postProcessBeforeInstantiation} callbacks.
 	 * <p>Differentiates between default bean instantiation, use of a
 	 * factory method, and autowiring a constructor.
-	 * @param beanName the name of the bean
-	 * @param mbd the merged bean definition for the bean
+	 * @param beanName the name of the bean bean的名称
+	 * @param mbd the merged bean definition for the bean 根bean的定义信息
 	 * @param args explicit arguments to use for constructor or factory method invocation
 	 * @return a new instance of the bean
 	 * @throws BeanCreationException if the bean could not be created
@@ -636,6 +636,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			//这里是拿的包装了这个bean的包装类BeanWrapper，然后对其进行属性的填充
 			populateBean(beanName, mbd, instanceWrapper);
+
+			// 这里执行了bean的aware接口的方法
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		} catch (Throwable ex) {
 			if (ex instanceof BeanCreationException && beanName.equals(((BeanCreationException) ex).getBeanName())) {
