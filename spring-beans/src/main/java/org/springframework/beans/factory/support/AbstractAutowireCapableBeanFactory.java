@@ -442,6 +442,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		Object result = existingBean;
 		for (BeanPostProcessor processor : getBeanPostProcessors()) {
+			// ApplicationContextAwarePostProcessor#postProcessBeforeInitialization
+			// 剩余的Aware接口在这里进行的解析
 			Object current = processor.postProcessBeforeInitialization(result, beanName);
 			if (current == null) {
 				return result;
@@ -544,7 +546,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
-			// 创建bean  执行完这里之后，执行了bena的aware接口的方法
+			// 创建bean  执行完这里之后，执行了bena的aware接口的方法，同时bean也完成了赋值（暂不考虑循环引用的情况）
 			Object beanInstance = doCreateBean(beanName, mbdToUse, args);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Finished creating instance of bean '" + beanName + "'");
@@ -634,10 +636,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
-			//这里是拿的包装了这个bean的包装类BeanWrapper，然后对其进行属性的填充
+			//这里是拿的包装了这个bean的包装类BeanWrapper，在这里完成了对属性的赋值
 			populateBean(beanName, mbd, instanceWrapper);
 
-			// 这里执行了bean的aware接口的方法
+			// 初始化bean 这里执行了bean的aware接口的方法
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		} catch (Throwable ex) {
 			if (ex instanceof BeanCreationException && beanName.equals(((BeanCreationException) ex).getBeanName())) {
@@ -1792,11 +1794,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				return null;
 			}, getAccessControlContext());
 		} else {
+			// 执行了这三个接口【BeanNameAware BeanClassLoaderAware BeanFactoryAware】
+			// 执行Student类的BeanNameAware接口方法，获取到的beanName为：student
 			invokeAwareMethods(beanName, bean);
 		}
 
 		Object wrappedBean = bean;
 		if (mbd == null || !mbd.isSynthetic()) {
+			// 执行Student类的EnvironmentAware接口方法
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}
 
@@ -1814,18 +1819,22 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		return wrappedBean;
 	}
 
+	// 调用invoke方法
 	private void invokeAwareMethods(String beanName, Object bean) {
 		if (bean instanceof Aware) {
 			if (bean instanceof BeanNameAware) {
+				// 将beanName返回
 				((BeanNameAware) bean).setBeanName(beanName);
 			}
 			if (bean instanceof BeanClassLoaderAware) {
+				// 拿到类加载器，如果不为空则返回该类加载器
 				ClassLoader bcl = getBeanClassLoader();
 				if (bcl != null) {
 					((BeanClassLoaderAware) bean).setBeanClassLoader(bcl);
 				}
 			}
 			if (bean instanceof BeanFactoryAware) {
+				// 返回Bean工厂 ----》 AbstractAutowireCapableBeanFactory
 				((BeanFactoryAware) bean).setBeanFactory(AbstractAutowireCapableBeanFactory.this);
 			}
 		}
