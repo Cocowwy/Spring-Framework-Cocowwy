@@ -442,7 +442,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		Object result = existingBean;
 		for (BeanPostProcessor processor : getBeanPostProcessors()) {
-			// ApplicationContextAwarePostProcessor#postProcessBeforeInitialization
+			// ApplicationContextAwareProcessor#postProcessBeforeInitialization
 			// 剩余的Aware接口在这里进行的解析
 			Object current = processor.postProcessBeforeInitialization(result, beanName);
 			if (current == null) {
@@ -460,6 +460,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Object result = existingBean;
 		for (BeanPostProcessor processor : getBeanPostProcessors()) {
 			Object current = processor.postProcessAfterInitialization(result, beanName);
+			// 这里可以知道就算返回的是空的，依旧可以拿到bean
 			if (current == null) {
 				return result;
 			}
@@ -563,7 +564,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
-	 * 这个方法 好像灰常重要！！！
+	 * 这个方法 好像灰常重要！！！!!!!!!!!!!!!!!!!!!!!!!!!
 	 * 【创建指定的bean】
 	 *
 	 * 1.定义了一个bean的包装类
@@ -632,7 +633,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
-		// 初始化这个bean
+		// ===================================初始化这个bean=================================================
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
@@ -1406,6 +1407,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
+		// 实例化之后的方法【InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation】
 		// Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
 		// state of the bean before properties are set. This can be used, for example,
 		// to support styles of field injection.
@@ -1788,20 +1790,25 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @see #applyBeanPostProcessorsAfterInitialization
 	 */
 	protected Object initializeBean(String beanName, Object bean, @Nullable RootBeanDefinition mbd) {
+		// 当运行未知的Java程序的时候，该程序可能有恶意代码（删除系统文件、重启系统等），
+		// 为了防止运行恶意代码对系统产生影响，需要对运行的代码的权限进行控制，这时候就要启用Java安全管理器。
 		if (System.getSecurityManager() != null) {
 			AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
 				invokeAwareMethods(beanName, bean);
 				return null;
 			}, getAccessControlContext());
 		} else {
-			// 执行了这三个接口【BeanNameAware BeanClassLoaderAware BeanFactoryAware】
+			// 未启用安全管理器就执行这三个接口【BeanNameAware BeanClassLoaderAware BeanFactoryAware】
 			// 执行Student类的BeanNameAware接口方法，获取到的beanName为：student
 			invokeAwareMethods(beanName, bean);
 		}
 
 		Object wrappedBean = bean;
 		if (mbd == null || !mbd.isSynthetic()) {
-			// 执行Student类的EnvironmentAware接口方法
+			// 执行其余的Aware接口方法  在初始化之前执行bean的处理器
+			// 执行如下接口处理【EnvironmentAware EmbeddedValueResolverAware  ResourceLoaderAware  ApplicationEventPublisherAware
+			// MessageSourceAware  ApplicationContextAware ApplicationStartupAware】
+			// student执行初始化之前的方法【BeanPostProcessor#postProcessBeforeInitialization】
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}
 
@@ -1813,6 +1820,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					beanName, "Invocation of init method failed", ex);
 		}
 		if (mbd == null || !mbd.isSynthetic()) {
+			// 在初始化之前执行bean的处理器   student执行初始化之后的方法【BeanPostProcessor#postProcessAfterInitialization】
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 
@@ -1821,6 +1829,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 	// 调用invoke方法
 	private void invokeAwareMethods(String beanName, Object bean) {
+		if (beanName.equals("student")) {
+			System.out.println("执行【BeanNameAware接口】part:1======【AbstractAutowireCapableBeanFactory:invokeAwareMethods】");
+		}
 		if (bean instanceof Aware) {
 			if (bean instanceof BeanNameAware) {
 				// 将beanName返回

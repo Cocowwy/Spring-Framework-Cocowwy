@@ -1,5 +1,6 @@
 import bean.Student;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
@@ -8,7 +9,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class Test {
 	public static void main(String[] args) {
-		System.out.println("=======spring容器开始==========");
+		System.out.println("=====================spring容器【create by:Cocowwy】==================================");
 		ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
 		Student student = (Student) context.getBean("student");
 		System.out.println(student);

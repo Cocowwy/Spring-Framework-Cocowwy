@@ -98,8 +98,11 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 				invokeAwareInterfaces(bean);
 				return null;
 			}, acc);
-		}
-		else {
+		} else {
+			// 执行aware接口的方法
+			if (beanName.equals("student")) {
+				System.out.println("执行【EnvironmentAware接口】part:2======【AbstractAutowireCapableBeanFactory:invokeAwareInterfaces】");
+			}
 			invokeAwareInterfaces(bean);
 		}
 

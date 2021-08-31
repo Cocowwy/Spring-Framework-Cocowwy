@@ -10,8 +10,14 @@
 		<property name="studentNo" value="PC66715"></property>
 	</bean>
 
-<!--	<bean id="teacher" class="bean.Teacher">-->
-<!--		<property name="name" value="Cocowwy"></property>-->
-<!--		<property name="teacherNo" value="PC66715"></property>-->
-<!--	</bean>-->
+	<!--	<bean id="teacher" class="bean.Teacher">-->
+	<!--		<property name="name" value="Cocowwy"></property>-->
+	<!--		<property name="teacherNo" value="PC66715"></property>-->
+	<!--	</bean>-->
+
+	<bean class="life.MyBeanPostProcessor"/>
+
+	<bean class="life.MyInstantiationAwareBeanPostProcessor"/>
+
+	<bean class="life.MyBeanFactoryPostProcessor"/>
 </beans>
