@@ -79,7 +79,7 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 	@Override
 	@Nullable
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-		// 执行其余的Aware接口
+		// 执行其余的Aware接口 如果bean没实现这些接口就返回
 		if (!(bean instanceof EnvironmentAware || bean instanceof EmbeddedValueResolverAware ||
 				bean instanceof ResourceLoaderAware || bean instanceof ApplicationEventPublisherAware ||
 				bean instanceof MessageSourceAware || bean instanceof ApplicationContextAware ||
@@ -101,7 +101,7 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 		} else {
 			// 执行aware接口的方法
 			if (beanName.equals("student")) {
-				System.out.println("执行【EnvironmentAware接口】part:2======【AbstractAutowireCapableBeanFactory:invokeAwareInterfaces】");
+				System.out.println("执行【EnvironmentAware接口】part:2======【ApplicationContextAwareProcessor:invokeAwareInterfaces】");
 			}
 			invokeAwareInterfaces(bean);
 		}

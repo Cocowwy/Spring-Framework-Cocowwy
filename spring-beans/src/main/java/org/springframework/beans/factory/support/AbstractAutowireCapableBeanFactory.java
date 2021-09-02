@@ -442,8 +442,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		Object result = existingBean;
 		for (BeanPostProcessor processor : getBeanPostProcessors()) {
-			// ApplicationContextAwareProcessor#postProcessBeforeInitialization
-			// 剩余的Aware接口在这里进行的解析
+			// 剩余的Aware接口在这里进行的解析 -》 ApplicationContextAwareProcessor#postProcessBeforeInitialization
+			// 同时也执行了 BeanPostProcessor#postProcessBeforeInitialization
 			Object current = processor.postProcessBeforeInitialization(result, beanName);
 			if (current == null) {
 				return result;
@@ -537,6 +537,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			// 让 BeanPostProcessors 有机会返回一个代理而不是目标 bean 实例
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+			// 执行【BeanFactoryPostProcessor#postProcessBeanFactory】方法
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -640,7 +641,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			//这里是拿的包装了这个bean的包装类BeanWrapper，在这里完成了对属性的赋值
 			populateBean(beanName, mbd, instanceWrapper);
 
-			// 初始化bean 这里执行了bean的aware接口的方法
+			// 初始化bean 这里执行了bean的Aware接口的方法
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		} catch (Throwable ex) {
 			if (ex instanceof BeanCreationException && beanName.equals(((BeanCreationException) ex).getBeanName())) {
@@ -1130,7 +1131,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 	/**
 	 * 【应用实例化前的后处理器】
-	 *
+	 * 在实例化之前解决
 	 * Apply before-instantiation post-processors, resolving whether there is a
 	 * before-instantiation shortcut for the specified bean.
 	 * @param beanName the name of the bean
@@ -1141,10 +1142,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) {
 		Object bean = null;
 		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
-			// Make sure bean class is actually resolved at this point.
+			// 确保此时真正解析了 bean 类
 			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				if (targetType != null) {
+					// 执行 applyBeanPostProcessorsBeforeInstantiation 的时机
+					// student执行实例化之前的方法【InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation】
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
 					if (bean != null) {
 						bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
@@ -1407,7 +1410,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
-		// 实例化之后的方法【InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation】
+		// 执行 【InstantiationAwareBeanPostProcessor#postProcessAfterInstantiation】
 		// Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
 		// state of the bean before properties are set. This can be used, for example,
 		// to support styles of field injection.
@@ -1813,6 +1816,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
+			// 初始化
 			invokeInitMethods(beanName, wrappedBean, mbd);
 		} catch (Throwable ex) {
 			throw new BeanCreationException(
@@ -1852,6 +1856,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
+	 * 执行bean的初始化
+	 *
+	 * 现在给一个 bean 一个反应的机会，它的所有属性都已设置，并有机会了解它拥有的 bean 工厂（这个对象）。
+	 * 这意味着检查 bean 是否实现了 InitializingBean 或定义了自定义的 init 方法，如果是，则调用必要的回调。
+	 *
 	 * Give a bean a chance to react now all its properties are set,
 	 * and a chance to know about its owning bean factory (this object).
 	 * This means checking whether the bean implements InitializingBean or defines
