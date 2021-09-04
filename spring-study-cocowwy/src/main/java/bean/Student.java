@@ -1,6 +1,7 @@
 package bean;
 
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
