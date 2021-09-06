@@ -157,7 +157,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	private final List<StringValueResolver> embeddedValueResolvers = new CopyOnWriteArrayList<>();
 
 	/**
-	 * 要应用的 BeanPostProcessors
+	 * 存储 BeanPostProcessors 的集合
+	 *
 	 * BeanPostProcessors to apply. */
 	private final List<BeanPostProcessor> beanPostProcessors = new BeanPostProcessorCacheAwareList();
 
@@ -242,6 +243,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	}
 
 	/**
+	 * 返回指定 bean 的一个实例，该实例可以是共享的或独立的
+	 *
 	 * Return an instance, which may be shared or independent, of the specified bean.
 	 * @param name the name of the bean to retrieve
 	 * @param requiredType the required type of the bean to retrieve

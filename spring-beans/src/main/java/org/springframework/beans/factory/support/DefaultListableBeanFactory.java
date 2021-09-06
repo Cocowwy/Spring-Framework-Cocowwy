@@ -177,7 +177,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	/** List of names of manually registered singletons, in registration order. */
 	private volatile Set<String> manualSingletonNames = new LinkedHashSet<>(16);
 
-	/** Cached array of bean definition names in case of frozen configuration. */
+	/**
+	 * 在冻结配置的情况下缓存的 Bean 定义名称数组
+	 * CACHED ARRAY OF BEAN DEFINITION NAMES IN CASE OF FROZEN CONFIGURATION. */
 	@Nullable
 	private volatile String[] frozenBeanDefinitionNames;
 
